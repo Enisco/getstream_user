@@ -56,38 +56,41 @@ def create_livestream(userId, callId):
             call_id=callId
         )
 
-        createCallResponse = call.create(
-                data= CallRequest(
-                    created_by=UserRequest(
-                        id=userId,
-                        name="GtubeUser" + userId,
-                        role="gtubeadmin",
-                    ),
-                    settings_override=CallSettingsRequest(
-                        recording= RecordSettingsRequest(
-                            mode="available",
-                            quality="1080p",
-                            audio_only=False,
-                        ),
-                    ),
-                ),
-            )
+        # createCallResponse = call.create(
+        #         data= CallRequest(
+        #             created_by=UserRequest(
+        #                 id=userId,
+        #                 name="GtubeUser" + userId,
+        #                 # role="gtubeadmin",
+        #                 role="user",
+        #             ),
+        #             settings_override=CallSettingsRequest(
+        #                 recording= RecordSettingsRequest(
+        #                     mode="available",
+        #                     quality="1080p",
+        #                     audio_only=False,
+        #                 ),
+        #             ),
+        #         ),
+        #     )
+        # print("\n\n\n >>>>>>>>> CreateCall Response: ", createCallResponse.data()) 
 
         goLiveRes = client.video.go_live(
-            call_id=createCallResponse.data().call.id,
-            call_type=createCallResponse.data().call.type,
+            call_id=callId,
+            call_type="default",
             recording_storage_name="gtubelive_s3bucket",
         )
-        print("\nGo Live Result: ", goLiveRes.data())
+        print("\n\n\n Go Live Result: ", goLiveRes.data())
 
         response = {
             'status': True,
-            'user_id': createCallResponse.data().call.id,
-            "rtmp": createCallResponse.data().call.ingress.rtmp.address
+            'user_id': userId,
+            "rtmp": goLiveRes.data().call.ingress.rtmp
         }
         return jsonify(response)
     
     except Exception as error:
+        print( str(error))
         errorResponse = {
             'status': False,
             'error': str(error)
