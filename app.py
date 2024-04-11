@@ -13,7 +13,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return "Hello, from Gtube!"
+    return "Hello, from GospelTube!"
 
 @app.route("/get_token/<string:userId>", methods=['GET'])
 def get_user_token(userId):
@@ -72,24 +72,22 @@ def create_livestream(userId, callId):
                     ),
                 ),
             )
-        print("\n\n\n >>>>>>>>> CreateCall Response: ", createCallResponse.data()) 
 
         goLiveRes = client.video.go_live(
             call_id=createCallResponse.data().call.id,
             call_type=createCallResponse.data().call.type,
             recording_storage_name="gtubelive_s3bucket",
         )
-        print("\n\n\n Go Live Result: ", goLiveRes.data())
+        print("\nGo Live Result: ", goLiveRes.data())
 
         response = {
             'status': True,
             'user_id': createCallResponse.data().call.id,
-            "rtmp": createCallResponse.data().call.ingress.rtmp
+            "rtmp": createCallResponse.data().call.ingress.rtmp.address
         }
         return jsonify(response)
     
     except Exception as error:
-        print( str(error))
         errorResponse = {
             'status': False,
             'error': str(error)
@@ -179,4 +177,4 @@ def handle_exception(error):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
