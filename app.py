@@ -13,7 +13,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return "Hello, Flask!"
+    return "Hello, from Gtube!"
 
 @app.route("/get_token/<string:userId>", methods=['GET'])
 def get_user_token(userId):
@@ -56,36 +56,35 @@ def create_livestream(userId, callId):
             call_id=callId
         )
 
-        # createCallResponse = call.create(
-        #         data= CallRequest(
-        #             created_by=UserRequest(
-        #                 id=userId,
-        #                 name="GtubeUser" + userId,
-        #                 # role="gtubeadmin",
-        #                 role="user",
-        #             ),
-        #             settings_override=CallSettingsRequest(
-        #                 recording= RecordSettingsRequest(
-        #                     mode="available",
-        #                     quality="1080p",
-        #                     audio_only=False,
-        #                 ),
-        #             ),
-        #         ),
-        #     )
-        # print("\n\n\n >>>>>>>>> CreateCall Response: ", createCallResponse.data()) 
+        createCallResponse = call.create(
+                data= CallRequest(
+                    created_by=UserRequest(
+                        id=userId,
+                        name="GtubeUser" + userId,
+                        role="gtubeadmin",
+                    ),
+                    settings_override=CallSettingsRequest(
+                        recording= RecordSettingsRequest(
+                            mode="available",
+                            quality="1080p",
+                            audio_only=False,
+                        ),
+                    ),
+                ),
+            )
+        print("\n\n\n >>>>>>>>> CreateCall Response: ", createCallResponse.data()) 
 
         goLiveRes = client.video.go_live(
-            call_id=callId,
-            call_type="default",
+            call_id=createCallResponse.data().call.id,
+            call_type=createCallResponse.data().call.type,
             recording_storage_name="gtubelive_s3bucket",
         )
         print("\n\n\n Go Live Result: ", goLiveRes.data())
 
         response = {
             'status': True,
-            'user_id': userId,
-            "rtmp": goLiveRes.data().call.ingress.rtmp
+            'user_id': createCallResponse.data().call.id,
+            "rtmp": createCallResponse.data().call.ingress.rtmp
         }
         return jsonify(response)
     
@@ -180,4 +179,4 @@ def handle_exception(error):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
