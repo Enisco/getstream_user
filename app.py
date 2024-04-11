@@ -122,7 +122,6 @@ def start_recording(callId):
         return jsonify(errorResponse)
 
 
-
 # -------------------------Stop Livestream and Get Recording-------------------------------------------
 
 @app.route("/get_recording/<string:callId>", methods=['GET'])
