@@ -135,11 +135,12 @@ def get_recording(callId):
         
         end = call.end()
         print("End Call Data: ", end.data())
-        time.sleep(30)
+        # time.sleep(30)
 
         list_recordings = call.list_recordings()
         print("list_recordings Data after CallEnd: ", list_recordings.data())
-        recording_url = "https://gospeltube533267336299.s3.us-east-2.amazonaws.com/gtube_liverecordings_s3bucket/default_" + callId + "/" + list_recordings.data().recordings[0].filename
+        recording_url = list_recordings.data().recordings[0].url
+        # recording_url = "https://gospeltube533267336299.s3.us-east-2.amazonaws.com/gtube_liverecordings_s3bucket/default_" + callId + "/" + list_recordings.data().recordings[0].filename
         
         response = {
             'status': True,
