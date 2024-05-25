@@ -1,4 +1,6 @@
 
+'''
+
 import time
 from flask import Flask, render_template, request, jsonify
 import stream
@@ -6,9 +8,9 @@ from flask_cors import CORS
 # from app import app
 
 from getstream import Stream
-from getstream.models import CallRequest, CallSettingsRequest
-from getstream.models import RecordSettingsRequest
-from getstream.models import UserRequest
+from getstream.models.call_request import CallRequest, CallSettingsRequest
+from getstream.models.call_settings_request import RecordSettingsRequest
+from getstream.models.user_request import UserRequest
 
 app = Flask(__name__)
 CORS(app)
@@ -44,18 +46,18 @@ def create_livestream(userId, callId):
     try:
         client = Stream(api_key="mgeuu28wmz7g", api_secret="wdt5u4pbdbpjnywfphzmvshzbpz5g3qdmsxz5bh22pehzztvymyrn64pgtgzgp44")
 
-        externalStorageList = client.list_external_storage()
-        print("\nexternalStorageList: ", externalStorageList.data)
+        externalStorageList = client.video.list_external_storage()
+        print("\nexternalStorageList: ", externalStorageList.data())
 
         updateCallTypeResponse = client.video.update_call_type(
             name="default",
             external_storage="gtubelive_s3bucket",
         )
-        print("\nUpdateCallTypeResponse: ", updateCallTypeResponse.data) 
+        print("\nUpdateCallTypeResponse: ", updateCallTypeResponse.data()) 
 
         call = client.video.call(
             call_type = "default",
-            id=callId
+            call_id=callId
         )
         
     except Exception as error:
@@ -67,7 +69,7 @@ def create_livestream(userId, callId):
         return jsonify(errorResponse)
 
     try:
-        createCallResponse = call.get_or_create(
+        createCallResponse = call.create(
                 data= CallRequest(
                     created_by=UserRequest(
                         id=userId,
@@ -83,7 +85,7 @@ def create_livestream(userId, callId):
                     ),
                 ),
             )
-        print("\n\n createCallResponse: ", createCallResponse.data) 
+        print("\n\n createCallResponse: ", createCallResponse.data()) 
     
     except Exception as error:
         errorResponse = {
@@ -95,16 +97,16 @@ def create_livestream(userId, callId):
 
     try:
         goLiveRes = client.video.go_live(
-            id=callId,
-            type="default",
+            call_id=callId,
+            call_type="default",
             recording_storage_name="gtubelive_s3bucket",
         )
-        print("\nGo Live Result: ", goLiveRes.data)
+        print("\nGo Live Result: ", goLiveRes.data())
 
         response = {
             'status': True,
-            'call_id': createCallResponse.data.call.id,
-            "rtmp": createCallResponse.data.call.ingress.rtmp.address
+            'user_id': createCallResponse.data().call.id,
+            "rtmp": createCallResponse.data().call.ingress.rtmp.address
         }
         return jsonify(response)
     
@@ -125,11 +127,11 @@ def start_recording(callId):
         clientRec = Stream(api_key="mgeuu28wmz7g", api_secret="wdt5u4pbdbpjnywfphzmvshzbpz5g3qdmsxz5bh22pehzztvymyrn64pgtgzgp44")
         # time.sleep(5)
         startRecording = clientRec.video.start_recording(
-            id=callId,
-            type="default",
+            call_id=callId,
+            call_type="default",
             recording_external_storage="gtubelive_s3bucket",
         )
-        print("\nStart Recording Result: ", startRecording.data)
+        print("\nStart Recording Result: ", startRecording.data())
 
         response = {
             'status': True
@@ -143,6 +145,7 @@ def start_recording(callId):
         }
         return jsonify(errorResponse)
 
+
 # -------------------------Stop Livestream and Get Recording-------------------------------------------
 
 @app.route("/get_recording/<string:callId>", methods=['GET'])
@@ -151,20 +154,18 @@ def get_recording(callId):
         client = Stream(api_key="mgeuu28wmz7g", api_secret="wdt5u4pbdbpjnywfphzmvshzbpz5g3qdmsxz5bh22pehzztvymyrn64pgtgzgp44")
         call = client.video.call(
             call_type = "default",
-            id=callId
+            call_id=callId
         )
         
         end = call.end()
-        print("End Call Data: ", end.data)
+        print("End Call Data: ", end.data())
         # time.sleep(30)
 
         list_recordings = call.list_recordings()
-        print("\n\nlist_recordings Data after CallEnd: ", list_recordings.data)
-        print("\n\n >>>>> Recordings URL retrieved: ", list_recordings.data.recordings[0].url)
-        # recording_url = list_recordings.data.recordings[0].url
-        recording_url = "https://gospeltube533267336299.s3.us-east-2.amazonaws.com/gtube_liverecordings_s3bucket/default_" + callId + "/" + list_recordings.data.recordings[0].filename
-        print("\n\n ------ Recordings URL: ", recording_url)
-
+        print("list_recordings Data after CallEnd: ", list_recordings.data())
+        # recording_url = list_recordings.data().recordings[0].url
+        recording_url = "https://gospeltube533267336299.s3.us-east-2.amazonaws.com/gtube_liverecordings_s3bucket/default_" + callId + "/" + list_recordings.data().recordings[0].filename
+        
         response = {
             'status': True,
             'recording_url': recording_url
@@ -201,3 +202,5 @@ def handle_exception(error):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+'''
