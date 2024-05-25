@@ -160,7 +160,6 @@ def get_recording(callId):
 
         list_recordings = call.list_recordings()
         print("\n\nlist_recordings Data after CallEnd: ", list_recordings.data)
-        print("\n\n >>>>> Recordings URL retrieved: ", list_recordings.data.recordings[0].url)
         recording_url = "https://gospeltube533267336299.s3.us-east-2.amazonaws.com/gtube_liverecordings_s3bucket/default_" + callId + "/" + list_recordings.data.recordings[0].filename
         print("\n\n ------ Recordings URL: ", recording_url)
 
