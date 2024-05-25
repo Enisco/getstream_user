@@ -1,4 +1,3 @@
-
 import time
 from flask import Flask, render_template, request, jsonify
 import stream
@@ -123,7 +122,7 @@ def create_livestream(userId, callId):
 def start_recording(callId):
     try:
         clientRec = Stream(api_key="mgeuu28wmz7g", api_secret="wdt5u4pbdbpjnywfphzmvshzbpz5g3qdmsxz5bh22pehzztvymyrn64pgtgzgp44")
-        # time.sleep(5)
+
         startRecording = clientRec.video.start_recording(
             id=callId,
             type="default",
@@ -156,7 +155,6 @@ def get_recording(callId):
         
         end = call.end()
         print("End Call Data: ", end.data)
-        # time.sleep(30)
 
         list_recordings = call.list_recordings()
         print("\n\nlist_recordings Data after CallEnd: ", list_recordings.data)
